@@ -1,13 +1,12 @@
 import React from 'react';
-import {Container, Navbar, Row} from 'react-bootstrap';
+import {Col, Container, Navbar, Row} from 'react-bootstrap';
 import './App.css';
 import {User} from "./model/User";
 import Add from "./components/Add";
-import Edit from "./components/Edit";
 import Userlist from "./components/Userlist";
 import Edit2 from "./components/Edit2";
 
-class App extends React.Component<{}, { title: string, userlist: User[], modalTest: boolean, test: string }> {
+class App extends React.Component<{}, { title: string, userlist: User[], modal: boolean, modalId: number, modalFirstname: string, modalSecondname: string, modalDescription: string }> {
     constructor(props: {}) {
         super(props);
         this.state = {
@@ -17,13 +16,51 @@ class App extends React.Component<{}, { title: string, userlist: User[], modalTe
                 new User('Julian', 'Scheffler', 'Der coolste!'),
                 new User('Katrin', 'Scheffler', 'Die beste!')
             ],
-            modalTest: true,
-            test: 'Test'
+            modal: false,
+            modalId: 0,
+            modalFirstname: '',
+            modalSecondname: '',
+            modalDescription: '',
         }
     }
 
-    change = () => this.setState({test: 'wuhu'})
+    add(firstname: string, secondname: string, description: string) {
+        this.setState(state => ({
+            userlist: [...state.userlist, new User(firstname, secondname, description)]
+        }))
+    };
 
+    delete(user: User) {
+        const index = this.state.userlist.indexOf(user, 0);
+        const currArr = this.state.userlist
+        currArr.splice(index, 1);
+        this.setState(() => ({
+            userlist: currArr
+        }));
+    }
+
+    openEdit(user: User) {
+        this.setState(state => ({
+            modal: true,
+            modalId: user.id,
+            modalFirstname: user.firstname,
+            modalSecondname: user.secondname,
+            modalDescription: user.description
+        }));
+    }
+
+    closeEdit() {
+        this.setState({modal: false});
+    }
+
+    save(id: number, fName: string, sName: string, des: string) {
+        this.setState(state => ({
+            modal: false,
+            userlist: this.state.userlist.map(user =>
+                user.id === id ? {...user, firstname: fName, secondname: sName, description: des} as User : user
+            )
+        }))
+    }
 
     render() {
         return <div>
@@ -33,24 +70,24 @@ class App extends React.Component<{}, { title: string, userlist: User[], modalTe
                 </Navbar.Brand>
             </Navbar>
 
-            <button className="btn btn-info" onClick={this.change}>Test</button>
-
-            <Container>
-                <Row>
-                    <div className="w-50 m-auto">
-                        <Add title={this.state.title} test={this.state.test}/>
-                    </div>
-
-                </Row>
-                <Row>
-                    <Edit title={this.state.title} modalTest={this.state.modalTest}/>
-                    <Edit2 modalTest={this.state.modalTest}/>
-                </Row>
-                <Row>
-                    <Userlist users={this.state.userlist}/>
+            <Container fluid={true} >
+                <Row className="m-auto w-75" >
+                    <Col xl={4}>
+                        <Add onCreate={(firsname, secondname, description) => this.add(firsname, secondname, description)}/>
+                    </Col>
+                    <Col xl={8}>
+                        <Userlist users={this.state.userlist} onDelete={(user) => this.delete(user)}
+                                  onEdit={(user: User) => this.openEdit(user)}/>
+                    </Col>
                 </Row>
             </Container>
-
+            <Edit2 onClose={() => this.closeEdit()}
+                   modal={this.state.modal} modalId={this.state.modalId}
+                   modalFn={this.state.modalFirstname}
+                   modalSn={this.state.modalSecondname}
+                   modalDc={this.state.modalDescription}
+                   onSubmit={(id, fName, sName, des) => this.save(id, fName, sName, des)}
+            />
 
         </div>
     }
