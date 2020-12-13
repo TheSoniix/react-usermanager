@@ -21,7 +21,7 @@ function Userlist(props: {users: User[], onDelete: (user: User) => void, onEdit:
     ));
 
     return (
-        <Table>
+        <Table responsive>
             <thead>
             <tr>
                 <th>Firstname</th>

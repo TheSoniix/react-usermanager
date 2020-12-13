@@ -1,10 +1,12 @@
 import React from 'react';
-import {Col, Container, Navbar, Row} from 'react-bootstrap';
+import {Col, Container, Nav, Navbar,  Row} from 'react-bootstrap';
 import './App.css';
 import {User} from "./model/User";
 import Add from "./components/Add";
 import Userlist from "./components/Userlist";
 import Edit2 from "./components/Edit2";
+import {BrowserRouter as Router, Switch, Route, NavLink, Link} from 'react-router-dom'
+
 
 class App extends React.Component<{}, { title: string, userlist: User[], modal: boolean, modalId: number, modalFirstname: string, modalSecondname: string, modalDescription: string }> {
     constructor(props: {}) {
@@ -64,30 +66,63 @@ class App extends React.Component<{}, { title: string, userlist: User[], modal: 
 
     render() {
         return <div>
-            <Navbar bg='dark'>
-                <Navbar.Brand className="text-light">
-                    {this.state.title}
-                </Navbar.Brand>
-            </Navbar>
+            <Router>
+                <Navbar bg='dark'>
+                    <Navbar.Brand className="text-light">
+                        {this.state.title}
+                    </Navbar.Brand>
+                    <Nav className="nav-links">
+                        <Nav.Link>
+                            <NavLink to="/userlist" activeClassName="selected" activeStyle={{color: "white"}} className="links">
+                                Userlist
+                            </NavLink>
+                        </Nav.Link>
 
-            <Container fluid={true} >
-                <Row className="m-auto w-75" >
-                    <Col xl={4}>
-                        <Add onCreate={(firsname, secondname, description) => this.add(firsname, secondname, description)}/>
-                    </Col>
-                    <Col xl={8}>
-                        <Userlist users={this.state.userlist} onDelete={(user) => this.delete(user)}
-                                  onEdit={(user: User) => this.openEdit(user)}/>
-                    </Col>
-                </Row>
-            </Container>
+
+                        <Nav.Link>
+                            <NavLink to="/add" activeClassName="selected" activeStyle={{color: "white"}} className="links">
+                                Add
+                            </NavLink>
+                        </Nav.Link>
+                    </Nav>
+                </Navbar>
+
+                <Switch>
+                    <Route path="/userlist">
+                        <Container>
+                            <Row>
+                                <Userlist users={this.state.userlist} onDelete={(user) => this.delete(user)}
+                                          onEdit={(user: User) => this.openEdit(user)}/>
+                            </Row>
+                        </Container>
+
+
+                    </Route>
+                    <Route path="/add">
+                        <Container>
+                            <Row className="justify-content-center">
+                                <div className="w-50">
+                                    <Add onCreate={(firsname, secondname, description) => this.add(firsname, secondname, description)}/>
+                                </div>
+
+                            </Row>
+                        </Container>
+
+
+                    </Route>
+
+
+                </Switch>
+
+            </Router>
+
+
             <Edit2 onClose={() => this.closeEdit()}
                    modal={this.state.modal} modalId={this.state.modalId}
                    modalFn={this.state.modalFirstname}
                    modalSn={this.state.modalSecondname}
                    modalDc={this.state.modalDescription}
-                   onSubmit={(id, fName, sName, des) => this.save(id, fName, sName, des)}
-            />
+                   onSubmit={(id, fName, sName, des) => this.save(id, fName, sName, des)}/>
 
         </div>
     }
